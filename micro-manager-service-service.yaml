@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.32.0 (HEAD)
+  labels:
+    io.kompose.service: micro-manager-service
+  name: micro-manager-service
+spec:
+  ports:
+    - name: "3010"
+      port: 3010
+      targetPort: 3010
+  selector:
+    io.kompose.service: micro-manager-service

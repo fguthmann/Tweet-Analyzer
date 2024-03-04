@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.32.0 (HEAD)
+  labels:
+    io.kompose.service: input-parsing-service
+  name: input-parsing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: input-parsing-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.32.0 (HEAD)
+      labels:
+        io.kompose.network/tweet-analyzer-final-project-default: "true"
+        io.kompose.service: input-parsing-service
+    spec:
+      containers:
+        - image: input-parsing-service:latest
+          name: input-parsing-service
+          ports:
+            - containerPort: 3002
+              hostPort: 3002
+              protocol: TCP
+      restartPolicy: Always

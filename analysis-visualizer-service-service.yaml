@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.32.0 (HEAD)
+  labels:
+    io.kompose.service: analysis-visualizer-service
+  name: analysis-visualizer-service
+spec:
+  ports:
+    - name: "3005"
+      port: 3005
+      targetPort: 3005
+  selector:
+    io.kompose.service: analysis-visualizer-service

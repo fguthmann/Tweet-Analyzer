@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.32.0 (HEAD)
+  labels:
+    io.kompose.service: analysis-visualizer-service
+  name: analysis-visualizer-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: analysis-visualizer-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.32.0 (HEAD)
+      labels:
+        io.kompose.network/tweet-analyzer-final-project-default: "true"
+        io.kompose.service: analysis-visualizer-service
+    spec:
+      containers:
+        - env:
+            - name: DB_HOST
+              value: postgres
+            - name: DB_NAME
+              value: postgres
+            - name: DB_USER
+              value: postgres
+          image: analysis-visualizer-service:latest
+          name: analysis-visualizer-service
+          ports:
+            - containerPort: 3005
+              hostPort: 3005
+              protocol: TCP
+      restartPolicy: Always
