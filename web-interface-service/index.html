@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Form</title>
+</head>
+<body>
+    <h2>Submit Your Request</h2>
+    <form action="http://localhost:3002/parse-input" method="post">
+        <label for="tokens">List of Tokens:</label><br>
+        <input type="text" id="tokens" name="tokens"><br>
+
+        <input type="radio" id="csv" name="source" value="csv">
+        <label for="csv">CSV</label><br>
+        <input type="radio" id="api" name="source" value="api" checked>
+        <label for="api">API</label><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  # Optional: Expose PostgreSQL port to the host
+
+  web-interface-service:
+    image: web-interface-service:latest
+    ports:
+      - "3001:3001"
+
+  input-parsing-service:
+    image: input-parsing-service:latest
+    ports:
+      - "3002:3002"
+
+  token-finding-service:
+    image: token-finding-service:latest # Path to the directory containing the Dockerfile
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres  # This service will use the same database
+      DB_NAME: postgres
+      DB_USER: postgres
+
+  tweet-analyzing-service:
+    image: tweet-analyzing-service:latest
+    ports:
+      - "3004:3004"
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_NAME: postgres
+      DB_USER: postgres
+  
+  analysis-visualizer-service:
+    image: analysis-visualizer-service:latest
+    ports:
+      - "3005:3005"
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_NAME: postgres
+      DB_USER: postgres
+  
+  micro-manager-service:
+    image: micro-manager-service:latest 
+    ports:
+      - "3010:3010"
+  
+  database-feeding-service:
+    image: database-feeding-service:latest
+    depends_on:
+      - postgres
+    ports:
+      - "3999:3999"
+    environment:
+      DB_HOST: postgres  # Use the service name as the hostname within the Docker network
+      DB_NAME: postgres  # Default database name
+      DB_USER: postgres  # Default user
+
+volumes:
+  postgres-data:
