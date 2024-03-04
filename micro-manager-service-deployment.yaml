@@ -28,4 +28,5 @@ spec:
             - containerPort: 3010
               hostPort: 3010
               protocol: TCP
+          imagePullPolicy: IfNotPresent
       restartPolicy: Always

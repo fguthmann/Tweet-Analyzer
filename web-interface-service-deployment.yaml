@@ -28,4 +28,5 @@ spec:
             - containerPort: 3001
               hostPort: 3001
               protocol: TCP
+          imagePullPolicy: IfNotPresent
       restartPolicy: Always

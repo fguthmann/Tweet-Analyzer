@@ -35,4 +35,5 @@ spec:
             - containerPort: 3005
               hostPort: 3005
               protocol: TCP
+          imagePullPolicy: IfNotPresent
       restartPolicy: Always
