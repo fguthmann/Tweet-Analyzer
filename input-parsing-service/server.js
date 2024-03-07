@@ -23,10 +23,45 @@ app.post('/parse-input', async (req, res) => {
         return res.status(500).json({ message: 'Failed to initialize Flask service', error: error.message });
     }
     
+    if (source === 'Upload tweet') {
+        console.log('Uploading input as tweet.');
+        try {
+            // Assuming the tweet-uploading-service is running and accessible at this URL
+            // and it expects a POST request with a JSON body containing a "status" field
+            const tweetResponse = await axios.post('http://tweet-uploading-service:3020/post-tweet', {
+                status: tokens // Assuming the entire tokens string is the tweet text
+            });
+
+            // Check the response from tweet-uploading-service
+            if (tweetResponse.status === 200) {
+                console.log('Tweet uploaded successfully:', tweetResponse.data);
+                return res.status(200).json({ message: 'Tweet uploaded successfully', details: tweetResponse.data });
+            } else {
+                console.log('Failed to upload tweet:', tweetResponse.data);
+                return res.status(tweetResponse.status).json({ message: 'Failed to upload tweet', error: tweetResponse.data });
+            }
+        } catch (error) {
+            console.error('Error uploading tweet:', error);
+            return res.status(500).json({ message: 'Failed to upload tweet', error: error.message });
+        }
+    }
+
+
     if (source === 'API') {
-        // Placeholder for sending request to the Twitter-fetch microservice
-        console.log('Fetching from Twitter API');
-        // Example: const twitterData = await axios.post('http://twitter-fetch-service/path', { tokens: parsedTokens });
+        console.log('Fetching from Twitter API via Flask microservice');
+        /* Commented out because Twitter API v1.1 for tweet grabbing is no longer freely available...
+        try {
+            // Here we make a POST request to the grab_tweets endpoint with the parsed tokens
+            const response = await axios.post('http://database-feeding-service:3999/grab-tweets', {
+                tokens: parsedTokens
+            });
+            // Log success or handle the response as needed
+            console.log('Successfully fetched and inserted tweets:', response.data);
+        } catch (error) {
+            console.error('Error fetching tweets from API:', error);
+            return res.status(500).json({ message: 'Failed to fetch tweets from API', error: error.message });
+        }
+        */
     }
 
     // Send parsed tokens to the token-finding-service

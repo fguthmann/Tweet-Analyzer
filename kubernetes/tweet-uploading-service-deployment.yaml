@@ -5,13 +5,13 @@ metadata:
     kompose.cmd: kompose convert
     kompose.version: 1.32.0 (HEAD)
   labels:
-    io.kompose.service: database-feeding-service
-  name: database-feeding-service
+    io.kompose.service: tweet-uploading-service
+  name: tweet-uploading-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: database-feeding-service
+      io.kompose.service: tweet-uploading-service
   template:
     metadata:
       annotations:
@@ -19,16 +19,10 @@ spec:
         kompose.version: 1.32.0 (HEAD)
       labels:
         io.kompose.network/tweet-analyzer-final-project-default: "true"
-        io.kompose.service: database-feeding-service
+        io.kompose.service: tweet-uploading-service
     spec:
       containers:
         - env:
-            - name: DB_HOST
-              value: postgres
-            - name: DB_NAME
-              value: postgres
-            - name: DB_USER
-              value: postgres
             - name: TWITTER_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -49,11 +43,11 @@ spec:
                 secretKeyRef:
                   name: twitter-api-secrets
                   key: TWITTER_ACCESS_TOKEN_SECRET
-          image: database-feeding-service:latest
-          name: database-feeding-service
+          image: tweet-uploading-service:latest
+          name: tweet-uploading-service
           ports:
-            - containerPort: 3999
-              hostPort: 3999
+            - containerPort: 3020
+              hostPort: 3020
               protocol: TCP
           imagePullPolicy: IfNotPresent
       restartPolicy: Always

@@ -2,7 +2,8 @@ import os
 from datetime import datetime
 import psycopg2
 import csv
-from flask import Flask
+from flask import Flask, request, jsonify
+import tweepy
 
 app = Flask(__name__)
 
@@ -10,6 +11,11 @@ app = Flask(__name__)
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_NAME = os.getenv("DB_NAME", "postgres")
 DB_USER = os.getenv("DB_USER", "postgres")
+
+api_key = os.getenv('TWITTER_API_KEY')
+api_secret_key = os.getenv('TWITTER_API_SECRET_KEY')
+access_token = os.getenv('TWITTER_ACCESS_TOKEN')
+access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 
 
 def connect_to_db():
@@ -19,6 +25,13 @@ def connect_to_db():
         host=DB_HOST
     )
     return conn
+
+
+def connect_to_api():
+    auth = tweepy.OAuthHandler(api_key, api_secret_key)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
+    return api
 
 
 def create_tables():
@@ -37,14 +50,7 @@ def create_tables():
                 number_of_likes INT,
                 number_of_shares INT
                 )
-                """,
                 """
-        CREATE TABLE IF NOT EXISTS token_tweet_relations (
-            id SERIAL PRIMARY KEY,
-            tokens TEXT,
-            tweet_ids INT[]
-        )
-        """
     )
     conn = None
     try:
@@ -115,6 +121,56 @@ def startup():
 @app.route('/')
 def hello():
     return "Hello, the tables should be set up now!"
+
+
+@app.route('/grab-tweets', methods=['POST'])
+def grab_tweets_from_api():
+    tokens = request.json['tokens']
+    api = connect_to_api()
+    search_query = " ".join(tokens)
+
+    try:
+        # Fetch tweets
+        tweets = api.search(q=search_query, count=100)  # Adjust count as needed
+
+        # Process and insert tweets into the database
+        for tweet in tweets:
+            # Extract required fields from each tweet
+            author = tweet.user.screen_name
+            content = tweet.text
+            country = None  # This might require additional logic based on tweet.place
+            date_time = tweet.created_at
+            tweet_id = tweet.id_str
+            language = tweet.lang
+            latitude = None if tweet.coordinates is None else tweet.coordinates['coordinates'][1]
+            longitude = None if tweet.coordinates is None else tweet.coordinates['coordinates'][0]
+            number_of_likes = tweet.favorite_count
+            number_of_shares = tweet.retweet_count
+
+            # Prepare data for insertion
+            tweet_data = (author, content, country, date_time, tweet_id, language, latitude, longitude, number_of_likes, number_of_shares)
+
+            # Insert tweet into database (simplified version)
+            insert_sql = """
+            INSERT INTO tweets(author, content, country, date_time, id, language, latitude, longitude, number_of_likes, number_of_shares)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            conn = connect_to_db()
+            cursor = conn.cursor()
+            try:
+                cursor.execute(insert_sql, tweet_data)
+                conn.commit()
+            except psycopg2.DatabaseError as e:
+                conn.rollback()
+                print(e)
+            finally:
+                cursor.close()
+                conn.close()
+
+        return jsonify({"message": "Tweets fetched and inserted successfully."}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "Failed to fetch or insert tweets"}), 500
 
 
 # Function to parse and convert date/time format
