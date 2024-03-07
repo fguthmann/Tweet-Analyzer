@@ -1,4 +1,4 @@
-# Project Name
+# Tweet Analyzing Server
 
 This server receives an input from the user in the form of a list of tokens separated by spaces. It processes this list within its database of tweets and returns some interesting visualizations based on its results.
 
