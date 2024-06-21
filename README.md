@@ -68,7 +68,7 @@ This will set up the server, and it will start running on its own once it has su
 
 ## Contributing
 
-Please shoot me a message at omer_segal@live.com if you have any questions or want to continue this project.
+Please shoot me a message at fannyguthmann@gmail.com.com if you have any questions or want to continue this project.
 
 ## Authors
 
